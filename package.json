@@ -1,0 +1,52 @@
+{
+  "name": "ridesharer_api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --runInBand"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "morgan": "^1.10.0",
+    "mysql": "^2.18.1",
+    "nconf": "^0.10.0",
+    "supertest": "^4.0.2",
+    "@types/jest": "^26.0.2",
+    "bcrypt": "^5.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "passport": "^0.4.1",
+    "passport-jwt": "^4.0.0"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^7.3.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "jest": "^26.1.0",
+    "prettier": "^2.0.5"
+  },
+  "eslintConfig": {
+    "env": {
+      "node": true,
+      "es6": true,
+      "browser": true,
+      "jest": true
+    },
+    "parserOptions": {
+      "ecmaVersion": "2019"
+    },
+    "extends": [
+      "eslint:recommended",
+      "plugin:prettier/recommended"
+    ],
+    "rules": {
+      "no-console": "off",
+      "no-await-in-loop": "warn"
+    }
+  },
+  "prettier": {
+    "singleQuote": true
+  }
+}

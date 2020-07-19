@@ -1,0 +1,13 @@
+{
+    "dbinfo" : {
+        "host": "localhost",
+        "user": "borrison",
+        "password": "borrison",
+        "database": "rideSharer_test",
+        "multipleStatements": true,
+        "dateStrings": true
+    },
+    "jwtsecret": "here goes the really secret sauce",
+    "jwtexpirationtime": "24h",
+    "bcryptsaltrounds": 6
+}
