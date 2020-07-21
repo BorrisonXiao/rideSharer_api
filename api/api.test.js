@@ -33,6 +33,7 @@ describe('Test User Database Deletion', function () {
       firstname: 'The',
       lastname: 'Admin',
       email: 'admin@admin.co',
+      phone: '15007730000',
       admin: false,
     });
     await setAdminState(adminId, 1);
@@ -84,7 +85,7 @@ const users = [
   'Dyan Duquette',
   'Anne Allensworth',
   'Delena Dinan',
-].map((fullname) => {
+].map((fullname, index) => {
   let [firstname, lastname] = fullname.split(/\s+/);
   return {
     username: firstname.toLowerCase().charAt(0) + lastname.toLowerCase(),
@@ -93,6 +94,7 @@ const users = [
     lastname,
     email: `${firstname.toLowerCase()}@${firstname.toLowerCase()}`,
     id: undefined, // help typescript
+    phone: index >= 10 ? `150077300${index}` : `1500773000${index}`,
     token: undefined, // help typescript
   };
 });
@@ -187,16 +189,21 @@ describe('Test Post User Creation', function () {
         .expect(200);
       const { users: rusers, has_more } = res.body;
       expect(has_more).toBe(expectedHasMore);
-      for (const { username, id, firstname, lastname, email } of users.slice(
-        from,
-        to
-      )) {
+      for (const {
+        username,
+        id,
+        firstname,
+        lastname,
+        email,
+        phone,
+      } of users.slice(from, to)) {
         expect(rusers).toContainEqual({
           username,
           id,
           lastname,
           firstname,
           email,
+          phone,
           admin: 0,
         });
       }
@@ -348,6 +355,128 @@ describe('Test Post User Creation', function () {
         ).toBeTruthy();
       })
     );
+  });
+});
+
+let trips = [];
+let tid = [];
+for (var i = 4; i < 32; i++) {
+  trips.push({
+    destination: `test-loc-${i % 10}`,
+    pickupLocation: `test-loc-${i + (1 % 10)}`,
+    departureTime: i >= 10 ? `1000-10-10 00:00:${i}` : `1000-10-10 00:00:0${i}`,
+    price: i,
+    userid: i,
+  });
+}
+
+describe('Test Trip Creation', function () {
+  it.each(trips)(`Test that driver trip %j can be created`, async (trip) => {
+    const res = await request(api)
+      .post('/api/trips/driver/')
+      .set('Authorization', `Bearer ${users[10].token}`)
+      .send(trip)
+      .expect(200);
+    expect(res.body).toHaveProperty('message');
+    expect(res.body.message.length).toBeGreaterThan(8);
+    expect(res.body).toHaveProperty('id');
+    tid.push(res.body.id);
+  });
+
+  it('Test that driver trips can be retrieved', async () => {
+    let res = await request(api)
+      .get(`/api/trips/driver/${tid[0]}`)
+      .set('Authorization', `Bearer ${users[10].token}`)
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    let { price, ...rest } = trips[0];
+    expect(res.body[0]).toMatchObject({
+      ...rest,
+      price: price.toFixed(2),
+      username: users[trips[0].userid - 2].username, // -2 due to array index an one user deletion
+      phone: users[trips[0].userid - 2].phone,
+    });
+  });
+
+  it('tests that a passenger can list driver trips', async () => {
+    let listSome = async (from, to, page, expectedHasMore) => {
+      let res = await request(api)
+        .get(`/api/trips/driver?page=${page}`)
+        .set('Authorization', `Bearer ${users[10].token}`)
+        .expect(200);
+      // eslint-disable-next-line no-unused-vars
+      const { trips: rtrips, has_more } = res.body;
+      expect(has_more).toBe(expectedHasMore);
+      rtrips.forEach((rtrip) => {
+        expect(rtrip).toHaveProperty('username');
+        expect(rtrip).toHaveProperty('userid');
+        expect(rtrip).toHaveProperty('destination');
+        expect(rtrip).toHaveProperty('price');
+        expect(rtrip).toHaveProperty('departureTime');
+        expect(rtrip).toHaveProperty('pickupLocation');
+        expect(rtrip).toHaveProperty('id');
+      });
+    };
+    return Promise.all([
+      listSome(0, 9, 0, true), // omit id 1, which is admin
+      listSome(9, 19, 1, true),
+      listSome(19, 29, 2, false), // Last page
+    ]);
+  });
+
+  it.each(trips)(`Test that passenger trip %j can be created`, async (trip) => {
+    const res = await request(api)
+      .post('/api/trips/passenger/')
+      .set('Authorization', `Bearer ${users[10].token}`)
+      .send(trip)
+      .expect(200);
+    expect(res.body).toHaveProperty('message');
+    expect(res.body.message.length).toBeGreaterThan(8);
+    expect(res.body).toHaveProperty('id');
+    tid.push(res.body.id);
+  });
+
+  it('Test that passenger trips can be retrieved', async () => {
+    let res = await request(api)
+      .get(`/api/trips/passenger/${tid[0]}`)
+      .set('Authorization', `Bearer ${users[10].token}`)
+      .expect('Content-Type', /json/)
+      .expect(200);
+
+    let { price, ...rest } = trips[0];
+    expect(res.body[0]).toMatchObject({
+      ...rest,
+      price: price.toFixed(2),
+      username: users[trips[0].userid - 2].username, // -2 due to array index an admin user
+      phone: users[trips[0].userid - 2].phone,
+    });
+  });
+
+  it('tests that a driver can list passenger trips', async () => {
+    let listSome = async (from, to, page, expectedHasMore) => {
+      let res = await request(api)
+        .get(`/api/trips/passenger?page=${page}`)
+        .set('Authorization', `Bearer ${users[10].token}`)
+        .expect(200);
+      // eslint-disable-next-line no-unused-vars
+      const { trips: rtrips, has_more } = res.body;
+      expect(has_more).toBe(expectedHasMore);
+      rtrips.forEach((rtrip) => {
+        expect(rtrip).toHaveProperty('username');
+        expect(rtrip).toHaveProperty('userid');
+        expect(rtrip).toHaveProperty('destination');
+        expect(rtrip).toHaveProperty('price');
+        expect(rtrip).toHaveProperty('departureTime');
+        expect(rtrip).toHaveProperty('pickupLocation');
+        expect(rtrip).toHaveProperty('id');
+      });
+    };
+    return Promise.all([
+      listSome(0, 9, 0, true), // omit id 1, which is admin
+      listSome(9, 19, 1, true),
+      listSome(19, 29, 2, false), // Last page
+    ]);
   });
 });
 

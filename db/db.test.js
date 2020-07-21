@@ -41,6 +41,7 @@ function makeUser(i) {
     password: `$2$....`,
     lastname: `lastname-${i}`,
     firstname: `firstname-${i}`,
+    phone: i >= 10 ? `150783600${i}` : `1507836000${i}`,
     admin: 0,
   };
 }
@@ -206,9 +207,12 @@ describe('Test Trip Management', function () {
     expect(res).toMatchObject(
       [...Array(10).keys()].map((i) => {
         // eslint-disable-next-line no-unused-vars
-        let { userid, ...rest } = makeTrip(i + 2);
+        let { userid, price, ...rest } = makeTrip(i + 2);
         return {
           username: `username-${i + 2}`,
+          price: price.toFixed(2),
+          userid,
+          id: i + 2,
           ...rest,
         };
       })
@@ -221,9 +225,12 @@ describe('Test Trip Management', function () {
     expect(res).toMatchObject(
       [...Array(6).keys()].map((i) => {
         // eslint-disable-next-line no-unused-vars
-        let { userid, ...rest } = makeTrip(i + 20);
+        let { userid, price, ...rest } = makeTrip(i + 20);
         return {
           username: `username-${i + 20}`,
+          price: price.toFixed(2),
+          userid,
+          id: i + 20,
           ...rest,
         };
       })
@@ -232,17 +239,29 @@ describe('Test Trip Management', function () {
 
   for (let i = 2; i <= 10; i++) {
     it(`Test that passenger's trip ${i} can be retrieved by id`, async () => {
-      const shouldBe = { ...makeTrip(i), id: i };
-      const passTripID = await getPassTripsByID(i);
-      expect(passTripID.length).toBe(1);
-      const [trip] = passTripID;
+      let { price, ...rest } = makeTrip(i);
+      const shouldBe = {
+        ...rest,
+        price: price.toFixed(2),
+        username: `username-${i}`,
+        phone: makeUser(i).phone,
+      };
+      const driverTripID = await getPassTripsByID(i);
+      expect(driverTripID.length).toBe(1);
+      const [trip] = driverTripID;
       return expect(trip).toEqual(shouldBe);
     });
   }
 
   for (let i = 2; i <= 10; i++) {
     it(`Test that driver's trip ${i} can be retrieved by id`, async () => {
-      const shouldBe = { ...makeTrip(i), id: i };
+      let { price, ...rest } = makeTrip(i);
+      const shouldBe = {
+        ...rest,
+        price: price.toFixed(2),
+        username: `username-${i}`,
+        phone: makeUser(i).phone,
+      };
       const driverTripID = await getDriverTripsByID(i);
       expect(driverTripID.length).toBe(1);
       const [trip] = driverTripID;
@@ -256,9 +275,11 @@ describe('Test Trip Management', function () {
     expect(res).toMatchObject(
       [...Array(4).keys()].map((i) => {
         // eslint-disable-next-line no-unused-vars
-        let { userid, ...rest } = makeTrip(11 * i + 2); // user-2, 13, 24, 35
+        let { userid, price, ...rest } = makeTrip(11 * i + 2); // user-2, 13, 24, 35
         return {
           username: `username-${11 * i + 2}`,
+          userid,
+          price: price.toFixed(2),
           ...rest,
         };
       })
@@ -271,9 +292,11 @@ describe('Test Trip Management', function () {
     expect(res).toMatchObject(
       [...Array(4).keys()].map((i) => {
         // eslint-disable-next-line no-unused-vars
-        let { userid, ...rest } = makeTrip(10 * i + 3); // user-3, 13, 23, 33
+        let { userid, price, ...rest } = makeTrip(10 * i + 3); // user-3, 13, 23, 33
         return {
           username: `username-${10 * i + 3}`,
+          userid,
+          price: price.toFixed(2),
           ...rest,
         };
       })
@@ -286,9 +309,11 @@ describe('Test Trip Management', function () {
     expect(res).toMatchObject(
       [...Array(1).keys()].map(() => {
         // eslint-disable-next-line no-unused-vars
-        let { userid, ...rest } = makeTrip(23);
+        let { userid, price, ...rest } = makeTrip(23);
         return {
           username: `username-${23}`,
+          userid,
+          price: price.toFixed(2),
           ...rest,
         };
       })
@@ -301,9 +326,11 @@ describe('Test Trip Management', function () {
     expect(res).toMatchObject(
       [...Array(4).keys()].map((i) => {
         // eslint-disable-next-line no-unused-vars
-        let { userid, ...rest } = makeTrip(11 * i + 2); // user-2, 13, 24, 35
+        let { userid, price, ...rest } = makeTrip(11 * i + 2); // user-2, 13, 24, 35
         return {
           username: `username-${11 * i + 2}`,
+          userid,
+          price: price.toFixed(2),
           ...rest,
         };
       })
@@ -316,9 +343,11 @@ describe('Test Trip Management', function () {
     expect(res).toMatchObject(
       [...Array(4).keys()].map((i) => {
         // eslint-disable-next-line no-unused-vars
-        let { userid, ...rest } = makeTrip(10 * i + 3); // user-3, 13, 23, 33
+        let { userid, price, ...rest } = makeTrip(10 * i + 3); // user-3, 13, 23, 33
         return {
           username: `username-${10 * i + 3}`,
+          userid,
+          price: price.toFixed(2),
           ...rest,
         };
       })
@@ -331,9 +360,11 @@ describe('Test Trip Management', function () {
     expect(res).toMatchObject(
       [...Array(1).keys()].map(() => {
         // eslint-disable-next-line no-unused-vars
-        let { userid, ...rest } = makeTrip(23);
+        let { userid, price, ...rest } = makeTrip(23);
         return {
           username: `username-${23}`,
+          userid,
+          price: price.toFixed(2),
           ...rest,
         };
       })

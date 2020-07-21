@@ -30,7 +30,9 @@ async function create_user(user) {
     !user.lastname ||
     !user.password ||
     user.password === '' ||
-    !user.username
+    !user.username ||
+    !user.phone ||
+    user.phone === ''
   ) {
     /* Invalid user data or missing password */
     return -1;
@@ -67,6 +69,7 @@ userrouter.post('/', async (req, res) => {
       lastname: user_in_db.lastname,
       username: user_in_db.username,
       email: user_in_db.email,
+      phone: user_in_db.phone,
       authenticated: true,
     };
     let message = 'Successfully Created User';
@@ -97,6 +100,7 @@ userrouter.get('/:id', async (req, res) => {
       lastname: user_in_db.lastname,
       email: user_in_db.email,
       id: user_in_db.id,
+      phone: user_in_db.phone,
       admin: user_in_db.admin,
     });
   } else {

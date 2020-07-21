@@ -7,6 +7,7 @@ apirouter.get('/', function (req, res) {
 });
 
 apirouter.use('/users', require('./users'));
+apirouter.use('/trips', require('./trips'));
 
 apirouter.post('/login', loginRequestHandler);
 

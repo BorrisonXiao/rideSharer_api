@@ -17,6 +17,7 @@ async function addUser(user) {
     firstname: user.firstname,
     lastname: user.lastname,
     email: user.email,
+    phone: user.phone,
     admin: user.admin,
   });
   return packet.insertId;
@@ -50,7 +51,7 @@ async function deleteUser(userid) {
 async function listUsers(page = 0, size = 10) {
   let start = page * size;
   return dbPool.query(
-    `SELECT id, admin, email, firstname, lastname, username FROM users LIMIT ?, ?`,
+    `SELECT id, admin, email, firstname, lastname, phone, username FROM users LIMIT ?, ?`,
     [start, size]
   );
 }
@@ -88,7 +89,7 @@ async function addPassengerTrip(tripInfo) {
 async function listDriverTrips(page = 0, size = 10) {
   let start = page * size;
   return dbPool.query(
-    `SELECT username, pickupLocation, destination, price, departureTime FROM driverTrips d LEFT JOIN users u ON d.userid = u.id LIMIT ?, ?`,
+    `SELECT d.id AS id, u.username AS username, u.id AS userid, pickupLocation, destination, FORMAT(price, 2) AS price, departureTime FROM driverTrips d LEFT JOIN users u ON d.userid = u.id LIMIT ?, ?`,
     [start, size]
   );
 }
@@ -102,19 +103,27 @@ async function listPassengerTrips(page = 0, size = 10) {
    * "dateStrings": true
    */
   return dbPool.query(
-    `SELECT username, pickupLocation, destination, price, departureTime FROM passengerTrips p LEFT JOIN users u ON p.userid = u.id LIMIT ?, ?`,
+    `SELECT p.id AS id, u.username AS username, u.id AS userid, pickupLocation, destination, FORMAT(price, 2) AS price, departureTime FROM passengerTrips p LEFT JOIN users u ON p.userid = u.id LIMIT ?, ?`,
     [start, size]
   );
 }
 
 /* Get the passenger's trip by the ID */
 async function getPassTripsByID(tripid) {
-  return dbPool.query(`SELECT * FROM passengerTrips WHERE id = ?`, [tripid]);
+  return dbPool.query(
+    `SELECT u.username AS username, u.id AS userid, u.phone AS phone, pickupLocation, destination, FORMAT(price, 2) AS price, departureTime FROM passengerTrips p \
+  LEFT JOIN users u ON p.userid = u.id WHERE p.id = ?`,
+    [tripid]
+  );
 }
 
 /* Get the driver's trip by the ID */
 async function getDriverTripsByID(tripid) {
-  return dbPool.query(`SELECT * FROM driverTrips WHERE id = ?`, [tripid]);
+  return dbPool.query(
+    `SELECT u.username AS username, u.id AS userid, u.phone AS phone, pickupLocation, destination, FORMAT(price, 2) AS price, departureTime FROM driverTrips d \
+  LEFT JOIN users u ON d.userid = u.id WHERE d.id = ?`,
+    [tripid]
+  );
 }
 
 /* List the driver's trips by destination */
@@ -122,7 +131,7 @@ async function listDriverTripsByDest(dest, page = 0, size = 10) {
   let start = page * size;
 
   return dbPool.query(
-    `SELECT username, pickupLocation, destination, price, departureTime FROM driverTrips d \
+    `SELECT u.username AS username, u.id AS userid, pickupLocation, destination, FORMAT(price, 2) AS price, departureTime FROM driverTrips d \
     LEFT JOIN users u ON d.userid = u.id WHERE destination = ? LIMIT ?, ?`,
     [dest, start, size]
   );
@@ -133,7 +142,7 @@ async function listDriverTripsByPickupLoc(pickup, page = 0, size = 10) {
   let start = page * size;
 
   return dbPool.query(
-    `SELECT username, pickupLocation, destination, price, departureTime FROM driverTrips d \
+    `SELECT u.username AS username,  u.id AS userid, pickupLocation, destination, FORMAT(price, 2) AS price, departureTime FROM driverTrips d \
     LEFT JOIN users u ON d.userid = u.id WHERE pickupLocation = ? LIMIT ?, ?`,
     [pickup, start, size]
   );
@@ -144,7 +153,7 @@ async function listDriverTripsByPD(pickup, dest, page = 0, size = 10) {
   let start = page * size;
 
   return dbPool.query(
-    `SELECT username, pickupLocation, destination, price, departureTime FROM driverTrips d \
+    `SELECT u.username AS username, u.id AS userid, pickupLocation, destination, FORMAT(price, 2) AS price, departureTime FROM driverTrips d \
       LEFT JOIN users u ON d.userid = u.id WHERE pickupLocation = ? AND destination = ? LIMIT ?, ?`,
     [pickup, dest, start, size]
   );
@@ -155,7 +164,7 @@ async function listPassTripsByDest(dest, page = 0, size = 10) {
   let start = page * size;
 
   return dbPool.query(
-    `SELECT username, pickupLocation, destination, price, departureTime FROM passengerTrips p \
+    `SELECT u.username AS username, u.id AS userid, pickupLocation, destination, FORMAT(price, 2) AS price, departureTime FROM passengerTrips p \
       LEFT JOIN users u ON p.userid = u.id WHERE destination = ? LIMIT ?, ?`,
     [dest, start, size]
   );
@@ -166,7 +175,7 @@ async function listPassTripsByPickupLoc(pickup, page = 0, size = 10) {
   let start = page * size;
 
   return dbPool.query(
-    `SELECT username, pickupLocation, destination, price, departureTime FROM passengerTrips p \
+    `SELECT u.username AS username, u.id AS userid, pickupLocation, destination, FORMAT(price, 2) AS price, departureTime FROM passengerTrips p \
       LEFT JOIN users u ON p.userid = u.id WHERE pickupLocation = ? LIMIT ?, ?`,
     [pickup, start, size]
   );
@@ -177,7 +186,7 @@ async function listPassTripsByPD(pickup, dest, page = 0, size = 10) {
   let start = page * size;
 
   return dbPool.query(
-    `SELECT username, pickupLocation, destination, price, departureTime FROM passengerTrips p \
+    `SELECT u.username AS username, u.id AS userid, pickupLocation, destination, FORMAT(price, 2) AS price, departureTime FROM passengerTrips p \
         LEFT JOIN users u ON p.userid = u.id WHERE pickupLocation = ? AND destination = ? LIMIT ?, ?`,
     [pickup, dest, start, size]
   );
