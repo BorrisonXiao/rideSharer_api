@@ -17,7 +17,7 @@ triprouter.post('/driver', requireLogin, async (req, res) => {
   try {
     let id = await addDriverTrip(req.body);
 
-    return res.status(200).json({ message: 'Trip succesfully inserted', id });
+    return res.status(200).json({ message: 'Trip successfully inserted', id });
   } catch (err) {
     return res.status(400).json({ message: err });
   }
@@ -59,7 +59,7 @@ triprouter.post('/passenger', requireLogin, async (req, res) => {
   try {
     let id = await addPassengerTrip(req.body);
 
-    return res.status(200).json({ message: 'Trip succesfully inserted', id });
+    return res.status(200).json({ message: 'Trip successfully inserted', id });
   } catch (err) {
     return res.status(400).json({ message: err });
   }

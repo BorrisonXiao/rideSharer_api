@@ -89,7 +89,9 @@ async function addPassengerTrip(tripInfo) {
 async function listDriverTrips(page = 0, size = 10) {
   let start = page * size;
   return dbPool.query(
-    `SELECT d.id AS id, u.username AS username, u.id AS userid, pickupLocation, destination, FORMAT(price, 2) AS price, departureTime FROM driverTrips d LEFT JOIN users u ON d.userid = u.id LIMIT ?, ?`,
+    `SELECT d.id AS id, u.username AS username, u.id AS userid, pickupLocation, \
+    destination, FORMAT(price, 2) AS price, departureTime FROM driverTrips d \
+    LEFT JOIN users u ON d.userid = u.id ORDER BY d.id DESC LIMIT ?, ?`,
     [start, size]
   );
 }
@@ -103,7 +105,9 @@ async function listPassengerTrips(page = 0, size = 10) {
    * "dateStrings": true
    */
   return dbPool.query(
-    `SELECT p.id AS id, u.username AS username, u.id AS userid, pickupLocation, destination, FORMAT(price, 2) AS price, departureTime FROM passengerTrips p LEFT JOIN users u ON p.userid = u.id LIMIT ?, ?`,
+    `SELECT p.id AS id, u.username AS username, u.id AS userid, pickupLocation, \
+    destination, FORMAT(price, 2) AS price, departureTime FROM passengerTrips p \
+    LEFT JOIN users u ON p.userid = u.id ORDER BY p.id DESC LIMIT ?, ?`,
     [start, size]
   );
 }

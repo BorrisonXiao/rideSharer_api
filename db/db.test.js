@@ -199,7 +199,7 @@ describe('Test Trip Management', function () {
     return expect(user.length).toBe(0);
   });
 
-  it(`Test that driverTrips 1-10 can be listed `, async () => {
+  it(`Test that driverTrips 35-24 can be listed `, async () => {
     // note: 0, 10 does not mean 0 to 10; it means the
     // first 10 entries, sorted by id
     let res = await listDriverTrips(0, 10);
@@ -207,30 +207,30 @@ describe('Test Trip Management', function () {
     expect(res).toMatchObject(
       [...Array(10).keys()].map((i) => {
         // eslint-disable-next-line no-unused-vars
-        let { userid, price, ...rest } = makeTrip(i + 2);
+        let { userid, price, ...rest } = makeTrip(35 - i);
         return {
-          username: `username-${i + 2}`,
+          username: `username-${35 - i}`,
           price: price.toFixed(2),
           userid,
-          id: i + 2,
+          id: 35 - i,
           ...rest,
         };
       })
     );
   });
 
-  it(`Test that passengerTrips 18-24 can be listed `, async () => {
+  it(`Test that passengerTrips 17-12 can be listed `, async () => {
     let res = await listPassengerTrips(3, 6);
     expect(res).toHaveLength(6);
     expect(res).toMatchObject(
       [...Array(6).keys()].map((i) => {
         // eslint-disable-next-line no-unused-vars
-        let { userid, price, ...rest } = makeTrip(i + 20);
+        let { userid, price, ...rest } = makeTrip(17 - i);
         return {
-          username: `username-${i + 20}`,
+          username: `username-${17 - i}`,
           price: price.toFixed(2),
           userid,
-          id: i + 20,
+          id: 17 - i,
           ...rest,
         };
       })
